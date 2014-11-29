@@ -3,14 +3,8 @@
 #
 #  forensicPCAP.py
 #  
-# ----------------------------------------------------------------------------
-# "THE BEER-WARE LICENSE" (Revision 42):
-# <cloud@madpowah.org> wrote this file. As long as you retain this notice you
-# can do whatever you want with this stuff. If we meet some day, and you think
-# this stuff is worth it, you can buy me a beer in return. Remi LAURENT
-# ----------------------------------------------------------------------------
-#
-#  
+
+
 from cmd2 import Cmd, make_option, options
 from optparse import OptionParser
 from scapy.all import *
@@ -109,6 +103,7 @@ Usage :
 		sys.stdout.flush()
 		tcp = 0
 		udp = 0
+		arp = 0
 		icmp = 0
 		other = 0
 		for packet in self.pcap:
@@ -116,6 +111,8 @@ Usage :
 				tcp = tcp + 1
 			elif UDP in packet:
 				udp = udp + 1
+			elif ARP in packet:
+				arp = arp + 1
 			elif ICMP in packet:
 				icmp = icmp + 1
 			else:
@@ -124,9 +121,10 @@ Usage :
 		print "## Statistics :"
 		print "TCP : " + str(tcp) + " packet(s)"
 		print "UDP : " + str(udp) + " packet(s)"
+		print "ARP : " + str(arp) + " packet(s)"
 		print "ICMP : " + str(icmp) + " packet(s)"
 		print "Other : " + str(other) + " packet(s)"
-		print "Total : " + str(tcp + udp + icmp + other) + " packet(s)"
+		print "Total : " + str(tcp + udp + arp + icmp + other) + " packet(s)"
 		print "## End of statistics"
 		
 		self.cmd = "stat"
@@ -203,7 +201,7 @@ Usage :
 						sys.stdout.flush()
 					webpkts.append(packet)
 		sys.stdout.write("OK.\n")
-		print "\nMail's request : " + str(len(con))  
+		print "\nWeb's request : " + str(len(con))  
 		
 		res = ""
 		for packet in webpkts:
