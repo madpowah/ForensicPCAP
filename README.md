@@ -2,7 +2,7 @@ ForensicPCAP
 ============
 ABOUT
 ============
-ForensicPCAP is a Python Forensic tool to analyze a PCAP file.
+ForensicPCAP is a Python Network Forensic tool to analyze a PCAP file.
 
 DEPENDENCIES
 ============
@@ -50,6 +50,8 @@ Total : 247 packet(s)
 Prints information about packet or last command result.<br />Usage : 
 - show : print result of the last command
 - show &lt;packet id&gt; : show information about a specific packet
+- show raw : show the raw data if last command was followtcpstream
+- show pcap : show all a summary of all packets
 
 ##### Dns
 Prints all DNS requests from the PCAP file. The id before the DNS is the packet's id which can be use with the "show" command.
@@ -108,6 +110,10 @@ CAPA
 +OK
 ....
 ```
+##### FollowTCPStream
+Permits to follow a TCP sequence
+Usage :
+- followtcptream <packet ID>
 
 ##### Search
 Permits to search specific packets<br />

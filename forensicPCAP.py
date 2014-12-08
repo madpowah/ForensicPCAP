@@ -45,7 +45,7 @@ class ForensicPCAP(Cmd):
 		"""Print version of forensicPCAP
 Usage :
 - version"""
-		print bcolors.TXT + "ForensicPCAP v0.1 written by cloud@madpowah.org"
+		print bcolors.TXT + "ForensicPCAP v0.2 written by cloud@madpowah.org"
 
 ############# do_dns() ###########
 	def do_dns(self, arg, opts=None):
@@ -140,20 +140,22 @@ Usage :
 		mailpkts = []
 		for i,packet in enumerate(self.pcap):
 			if TCP in packet:
-				if packet.getlayer('TCP').dport == 110 or packet.getlayer('TCP').sport == 110 :
+				if packet.getlayer('TCP').dport == 110 or packet.getlayer('TCP').sport == 110 or packet.getlayer('TCP').dport == 143 or packet.getlayer('TCP').sport == 143 :
 					if packet.getlayer('TCP').flags == 2:
 						con.append(i)
 					mailpkts.append(packet)
 		sys.stdout.write("OK.\n")
-		print "Mail's request : " + str(len(con))  
-		
+		print "## Result : Mail's request : " + str(len(con))  
+		sys.stdout.write(bcolors.TXT + "## Saving mails ... ")
+		sys.stdout.flush()
 		res = ""
 		for packet in mailpkts:
 				if packet.getlayer('TCP').flags == 24:
 					res = res + packet.getlayer('Raw').load
 					sys.stdout.write(".")
 					sys.stdout.flush()
-					
+		sys.stdout.write("OK\n")
+		sys.stdout.flush()			
 		self.cmd = "mail"			
 		self.last = res
 		
@@ -201,7 +203,7 @@ Usage :
 						sys.stdout.flush()
 					webpkts.append(packet)
 		sys.stdout.write("OK.\n")
-		print "\nWeb's request : " + str(len(con))  
+		print "\nWeb's request : " + str(len(con)) + bcolors.ENDC
 		
 		res = ""
 		for packet in webpkts:
@@ -210,6 +212,33 @@ Usage :
 					
 		self.cmd = "web"			
 		self.last = res
+
+############# do_followTCPStream() ###########
+	def do_followtcpstream(self, arg, opts=None):
+		"""Follow TCP sequence
+Usage :
+- followtcpstream <packet ID>"""
+		sys.stdout.write(bcolors.TXT + "## Searching TCP Stream in PCAP ... ")
+		sys.stdout.flush()
+		l = self.pcap[int(arg)]
+		ipsrc = l.getlayer("IP").src
+		ipdst = l.getlayer("IP").dst
+		portsrc = l.getlayer("TCP").sport
+		portdst = l.getlayer("TCP").dport
+		
+		pkt = []
+		pkt.append([])
+		for i,p in enumerate(self.pcap):
+			if p.haslayer('TCP'):
+				if p[IP].src == ipsrc and p[IP].dst == ipdst and p[TCP].sport == portsrc and p[TCP].dport == portdst:
+					pkt.append([i, p])
+				if p[IP].src == ipdst and p[IP].dst == ipsrc and p[TCP].sport == portdst and p[TCP].dport == portsrc:
+					pkt.append([i, p])
+					
+		sys.stdout.write("OK\n" + bcolors.ENDC)
+		self.cmd = "followTCPStream"
+		self.last = pkt
+
 		
 ############# do_search() ###########
 	def do_search(self, arg, opts=None):
@@ -299,7 +328,9 @@ Usage :
 		"""Print information about packet or last command result
 Usage : 
 - show : print result of the last command
-- show <packet id> : show information about a specific packet"""
+- show <packet id> : show information about a specific packet
+- show raw : show the raw data if last command was followtcpstream
+- show pcap : show all a summary of all packets"""
 		args = arg.split(' ')
 		if len(arg) < 1:
 			if self.pcap != self.last:
@@ -307,7 +338,7 @@ Usage :
 					if self.cmd == 'ipsrc':
 						print var
 					elif (len(var)) == 2:
-						if self.cmd == "search":
+						if self.cmd == "search" or self.cmd == "followTCPStream":
 							print (str(var[0]) + " | " + str(self.pcap[int(var[0])].summary()))
 						else:
 							print (str(var[0]) + " | " + str(var[1]))
@@ -316,12 +347,18 @@ Usage :
 			else:
 				self.last.show()
 
-		elif len(args) == 2:
-				if args[0] == "packet":
-					self.pcap[int(args[1])].show()
-		
-		else:
-			self.pcap[int(arg)].show()
+		elif len(args) == 1:
+				if args[0] == "raw":
+					for p in self.last:
+						if len(p) > 0:
+							if self.pcap[int(p[0])].getlayer('Raw'):
+								print str(self.pcap[int(p[0])].getlayer('Raw').load)
+								
+				if args[0] == "pcap":
+					for i,p in enumerate(self.pcap):
+						print str(i) + " | " + str(p.summary())
+				else: #Print packet detail
+					self.pcap[int(arg)].show()		
 			
  ############# main() ###########  
 def main():
