@@ -9,7 +9,7 @@ DEPENDENCIES
 ForensicPCAP uses Scapy and Cmd2. So first you have to install them typing :
 ```sh
 apt-get install python-scapy
-easy_install cmd2
+pip install cmd2
 ```
 HOW TO USE IT
 ============

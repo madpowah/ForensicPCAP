@@ -5,7 +5,7 @@
 #  
 
 
-from cmd2 import Cmd, make_option, options
+from cmd2 import Cmd
 from optparse import OptionParser
 from scapy.all import *
 import sys
@@ -45,7 +45,7 @@ class ForensicPCAP(Cmd):
 		"""Print version of forensicPCAP
 Usage :
 - version"""
-		print bcolors.TXT + "ForensicPCAP v0.2 written by cloud@madpowah.org"
+		print(bcolors.TXT + "ForensicPCAP v0.3 written by cloud@madpowah.org")
 
 ############# do_dns() ###########
 	def do_dns(self, arg, opts=None):
@@ -65,7 +65,7 @@ Usage :
 				dns.append([i, res])
 
 		sys.stdout.write("OK.\n")
-		print bcolors.TXT + "## Result : " + str(len(dns) - 1) + " DNS request(s)" + bcolors.ENDC
+		print(bcolors.TXT + "## Result : " + str(len(dns) - 1) + " DNS request(s)" + bcolors.ENDC)
 		self.last = dns
 		self.cmd = "dns"
 		
@@ -90,7 +90,7 @@ Usage :
 				if test == 0:
 					ports.append([i, res])
 		sys.stdout.write("OK.\n")
-		print bcolors.TXT + "Result : " + str(len(ports) - 1) + " ports##" + bcolors.ENDC
+		print(bcolors.TXT + "Result : " + str(len(ports) - 1) + " ports##" + bcolors.ENDC)
 		self.last = ports
 		self.cmd = "dstports"
 
@@ -118,14 +118,14 @@ Usage :
 			else:
 				other = other + 1
 		sys.stdout.write("OK.\n"+ bcolors.ENDC)
-		print "## Statistics :"
-		print "TCP : " + str(tcp) + " packet(s)"
-		print "UDP : " + str(udp) + " packet(s)"
-		print "ARP : " + str(arp) + " packet(s)"
-		print "ICMP : " + str(icmp) + " packet(s)"
-		print "Other : " + str(other) + " packet(s)"
-		print "Total : " + str(tcp + udp + arp + icmp + other) + " packet(s)"
-		print "## End of statistics"
+		print("## Statistics :")
+		print("TCP : " + str(tcp) + " packet(s)")
+		print("UDP : " + str(udp) + " packet(s)")
+		print("ARP : " + str(arp) + " packet(s)")
+		print("ICMP : " + str(icmp) + " packet(s)")
+		print("Other : " + str(other) + " packet(s)")
+		print("Total : " + str(tcp + udp + arp + icmp + other) + " packet(s)")
+		print("## End of statistics")
 		
 		self.cmd = "stat"
 		
@@ -145,7 +145,7 @@ Usage :
 						con.append(i)
 					mailpkts.append(packet)
 		sys.stdout.write("OK.\n")
-		print "## Result : Mail's request : " + str(len(con))  
+		print("## Result : Mail's request : " + str(len(con)))
 		sys.stdout.write(bcolors.TXT + "## Saving mails ... ")
 		sys.stdout.flush()
 		res = ""
@@ -181,7 +181,7 @@ Usage :
 						sys.stdout.write(".")
 						sys.stdout.flush()
 		sys.stdout.write("OK.\n")
-		print bcolors.TXT + "Result : " + str(len(ips)) + " ips##" + bcolors.ENDC
+		print(bcolors.TXT + "Result : " + str(len(ips)) + " ips##" + bcolors.ENDC)
 		self.cmd = "ipsrc"
 		self.last = ips
 		
@@ -203,12 +203,12 @@ Usage :
 						sys.stdout.flush()
 					webpkts.append(packet)
 		sys.stdout.write("OK.\n")
-		print "\nWeb's request : " + str(len(con)) + bcolors.ENDC
+		print("\nWeb's request : " + str(len(con)) + bcolors.ENDC)
 		
 		res = ""
 		for packet in webpkts:
 				if packet.getlayer('TCP').flags == 24:
-					res = res + packet.getlayer('Raw').load
+					res = res + str(packet.getlayer('Raw').load)
 					
 		self.cmd = "web"			
 		self.last = res
@@ -317,7 +317,7 @@ Usage :
 			except:
 				error = ''
 				
-		print "\nSearch's result : " + str(len(pkts) - 1) 			
+		print("\nSearch's result : " + str(len(pkts) - 1))			
 		self.cmd = "search"			
 		self.last = pkts
 				
@@ -336,12 +336,12 @@ Usage :
 			if self.pcap != self.last:
 				for var in self.last:
 					if self.cmd == 'ipsrc':
-						print var
+						print(var)
 					elif (len(var)) == 2:
 						if self.cmd == "search" or self.cmd == "followTCPStream":
-							print (str(var[0]) + " | " + str(self.pcap[int(var[0])].summary()))
+							print((str(var[0]) + " | " + str(self.pcap[int(var[0])].summary())))
 						else:
-							print (str(var[0]) + " | " + str(var[1]))
+							print((str(var[0]) + " | " + str(var[1])))
 					elif (len(var)) == 1:
 						sys.stdout.write(str(var))
 			else:
@@ -352,11 +352,11 @@ Usage :
 					for p in self.last:
 						if len(p) > 0:
 							if self.pcap[int(p[0])].getlayer('Raw'):
-								print str(self.pcap[int(p[0])].getlayer('Raw').load)
+								print(str(self.pcap[int(p[0])].getlayer('Raw').load))
 								
 				if args[0] == "pcap":
 					for i,p in enumerate(self.pcap):
-						print str(i) + " | " + str(p.summary())
+						print(str(i) + " | " + str(p.summary()))
 				else: #Print packet detail
 					self.pcap[int(arg)].show()		
 			
